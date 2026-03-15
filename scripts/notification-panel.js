@@ -83,14 +83,14 @@ function updateWeatherTheme() {
 
 async function updateLocation() {
     try {
-        const response = await fetch('https://ip-api.com/json/');
+        const response = await fetch('https://free.freeipapi.com/api/json');
         const data = await response.json();
 
-        if (data.status === 'success') {
+        if (response.status == 200) {
             // Update the city name in your weather section
-            document.getElementById('weather-city').textContent = data.city;
+            document.getElementById('weather-city').textContent = data.cityName;
             document.getElementById('weather-city').classList.remove("hidden");
-            console.log(`System Location: ${data.city}, ${data.country}`);
+            console.log(`System Location: ${data.cityName}, ${data.countryName}`);
 
             fetchWeather(data);
             setInterval(() => fetchWeather(data), 1800000);
@@ -103,7 +103,7 @@ async function updateLocation() {
     }
 }
 
-async function fetchWeather({ city, lat: latitude, lon: longitude }) {
+async function fetchWeather({ cityName: city, latitude: latitude, longitude: longitude }) {
     try {
         document.getElementById('weather-city').textContent = city;
 
@@ -131,13 +131,27 @@ function updateWeatherIcon(code) {
     const icon = document.getElementById('weather-icon');
     icon.className = "fa-solid text-xl "; // Reset classes
 
+    let currentHour = (new Date()).getHours();
+
     // WMO Codes: 0 = Clear, 1-3 = Partly Cloudy, 45-48 = Fog, 51-67 = Rain, 71-77 = Snow
     if (code === 0) {
-        icon.classList.add('fa-sun', 'text-yellow-400');
+        if (currentHour > 5 && currentHour < 18) {
+            icon.classList.add('fa-sun', 'text-yellow-400');
+        } else {
+            icon.classList.add('fa-moon', 'text-yellow-400');
+        }
     } else if (code <= 3) {
-        icon.classList.add('fa-cloud-sun', 'text-gray-300');
+        if (currentHour > 5 && currentHour < 18) {
+            icon.classList.add('fa-cloud-sun', 'text-gray-300');
+        } else {
+            icon.classList.add('fa-cloud-moon', 'text-gray-300');
+        }
     } else if (code >= 51 && code <= 67) {
-        icon.classList.add('fa-cloud-showers-heavy', 'text-blue-400');
+        if (currentHour > 5 && currentHour < 18) {
+            icon.classList.add('fa-cloud-showers-heavy', 'text-blue-400');
+        } else {
+            icon.classList.add('fa-cloud-moon-rain', 'text-blue-400');
+        }
     } else if (code >= 71 && code <= 77) {
         icon.classList.add('fa-snowflake', 'text-blue-200');
     } else {
